@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Evaluador de Pronunciación</title>
+  <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
+  <link rel="apple-touch-icon" href="assets/favicon.ico">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <h1>🎤 Evaluador de Pronunciación</h1>
+    <p class="subtitle">Practica tu inglés: pronunciación, gramática y vocabulario en tiempo real</p>
+    <div id="header-streak" class="header-streak" title="Racha y actividad diaria — ver detalles en Progreso">
+      <span class="hs-fire">🔥 <span id="hs-streak">0</span></span>
+      <span class="hs-sep">·</span>
+      <span class="hs-goal">🎯 <span id="hs-today">0/3</span></span>
+      <span class="hs-sep">·</span>
+      <span class="hs-best">🏆 <span id="hs-best">0</span></span>
+    </div>
+    <button class="header-profile" id="header-profile" title="Perfil activo — ir a Configuración">👤 <span id="header-profile-name"></span></button>
+  </header>
+
+  <main>
+    <!-- Pestañas -->
+    <nav class="tabs">
+      <details class="tab-dropdown" id="dropdown-activities">
+        <summary>🎯 Actividades</summary>
+        <div class="dropdown-menu">
+          <button class="tab active" data-tab="practice">📝 Práctica</button>
+          <button class="tab" data-tab="conversation">💬 Conversación</button>
+          <button class="tab" data-tab="translate">🌍 Traducción</button>
+          <button class="tab" data-tab="dictionary">📖 Diccionario</button>
+          <button class="tab" data-tab="phonemes">🔤 Fonemas</button>
+          <button class="tab" data-tab="review">🃏 Repaso</button>
+          <button class="tab" data-tab="grammar">📐 Gramática</button>
+          <button class="tab" data-tab="vocabulary">🧠 Vocabulario</button>
+        </div>
+      </details>
+      <button class="tab" data-tab="progress">📈 Progreso</button>
+      <button class="tab" data-tab="history">📋 Historial</button>
+      <button class="tab" data-tab="settings">⚙️ Configuración</button>
+    </nav>
+
+    <!-- ============ TAB: PRÁCTICA ============ -->
+    <div id="tab-practice" class="tab-content">
+      <!-- Sección de práctica -->
+      <section id="practice-section" class="card">
+        <h2>📝 Texto objetivo</h2>
+        <p class="hint">Escribe o elige una frase para practicar. Luego pulsa el micrófono y léela en voz alta.</p>
+        <textarea id="target-text" rows="4" placeholder="Ej.: The quick brown fox jumps over the lazy dog. O pega un párrafo completo para practicar lectura."></textarea>
+
+        <div class="phrase-suggestions">
+          <span class="hint">Sugerencias:</span>
+          <button id="refresh-phrases-btn" class="btn secondary" title="Mostrar frases diferentes del mismo nivel">🔄 Otras frases</button>
+          <div id="phrase-chips" class="phrase-chips"></div>
+        </div>
+
+        <div class="listen-controls">
+          <button id="speak-btn" class="btn secondary">🔊 Escuchar</button>
+          <button id="stop-speak-btn" class="btn secondary">⏹ Detener</button>
+          <label class="inline-label" for="speech-rate">Velocidad:</label>
+          <select id="speech-rate">
+            <option value="0.6">🐢 Lenta (0.6x)</option>
+            <option value="0.8">Ligeramente lenta (0.8x)</option>
+            <option value="1" selected>▶️ Normal (1x)</option>
+            <option value="1.2">Rápida (1.2x)</option>
+          </select>
+        </div>
+
+        <div class="listen-controls">
+          <button id="shadow-btn" class="btn secondary">🎧 Shadowing</button>
+          <button id="dictation-btn" class="btn secondary">✍️ Dictado</button>
+          <button id="record-btn" class="btn secondary">⏺ Grabar mi voz</button>
+          <button id="stop-record-btn" class="btn secondary" disabled>⏹ Detener grabación</button>
+          <button id="evaluate-with-audio-btn" class="btn accent">🤖 Evaluar con audio IA</button>
+          <span id="record-status" class="hint"></span>
+        </div>
+        <div id="mic-level-wrap" class="mic-level-wrap hidden">
+          <span class="hint">🎚️ Nivel del micrófono:</span>
+          <div class="mic-level-bar"><div id="mic-level-fill"></div></div>
+        </div>
+
+        <!-- Comparación de audio: tu grabación vs la voz TTS -->
+        <div id="audio-compare" class="audio-compare hidden">
+          <div class="audio-compare-box">
+            <span class="hint">🎙️ Tu grabación</span>
+            <audio id="user-audio" controls></audio>
+          </div>
+          <div class="audio-compare-box">
+            <span class="hint">🔊 Voz del texto objetivo</span>
+            <button id="tts-compare-btn" class="btn secondary">▶️ Reproducir TTS</button>
+          </div>
+        </div>
+
+        <!-- Modo dictado: la app dice la frase y tú la escribes -->
+        <div id="dictation-box" class="dictation-box hidden">
+          <p class="hint">Escucha la frase y escríbela. Se comparará con el original.</p>
+          <textarea id="dictation-input" rows="2" placeholder="Escribe lo que escuchaste..."></textarea>
+          <div class="controls">
+            <button id="dictation-check-btn" class="btn accent">✅ Comprobar</button>
+            <button id="dictation-replay-btn" class="btn secondary">🔁 Repetir audio</button>
+          </div>
+          <div id="dictation-result" class="dictation-result"></div>
+        </div>
+
+        <div class="controls">
+          <button id="mic-btn" class="btn primary big">🎤 Empezar a hablar</button>
+        </div>
+
+        <div id="status" class="status" aria-live="polite"></div>
+      </section>
+
+      <!-- Transcripción en vivo -->
+      <section id="transcript-section" class="card hidden">
+        <h2>🗣️ Lo que escuché</h2>
+        <p id="live-transcript" class="transcript">…</p>
+      </section>
+
+      <!-- Resultados -->
+      <section id="results-section" class="hidden">
+        <!-- Pronunciación (única puntuación en Práctica) -->
+        <div class="card">
+          <h2>🔊 Pronunciación</h2>
+          <div class="score-row">
+            <div class="score-circle" id="pron-score">--</div>
+            <div class="score-details">
+              <p id="pron-summary"></p>
+              <div id="word-comparison"></div>
+              <div id="rhythm-analysis" class="rhythm-analysis hidden"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ============ TAB: CONVERSACIÓN ============ -->
+    <div id="tab-conversation" class="tab-content hidden">
+      <section class="card">
+        <h2>💬 Conversación libre</h2>
+        <p class="hint">Habla en inglés sobre cualquier tema. La IA te responderá y te corregirá. Pulsa el micrófono para hablar.</p>
+
+        <div class="conv-mode-row">
+          <label class="inline-label" for="conv-mode">Modo de conversación:</label>
+          <select id="conv-mode">
+            <option value="chat" selected>💬 Por chat (texto)</option>
+            <option value="oral">🗣️ Oral (voz)</option>
+          </select>
+        </div>
+
+        <div class="conv-mode-row">
+          <label class="inline-label" for="conv-scenario">Escenario de rol:</label>
+          <select id="conv-scenario">
+            <option value="free" selected>💬 Libre (sin escenario)</option>
+          </select>
+          <p class="hint" id="conv-scenario-hint"></p>
+        </div>
+
+        <div class="conv-mode-row">
+          <label class="inline-label" for="exam-mode">Modo examen:</label>
+          <select id="exam-mode">
+            <option value="off" selected>⭕ Desactivado</option>
+            <option value="describe">🖼️ Describe un tema (1 min)</option>
+            <option value="opinion">💭 Opina sobre un tema (1 min)</option>
+            <option value="interview">🎤 Simulacro de entrevista</option>
+          </select>
+          <p class="hint" id="exam-hint"></p>
+        </div>
+
+        <div class="conv-mode-row">
+          <label class="inline-label" for="conv-auto-eval">
+            <input type="checkbox" id="conv-auto-eval" checked>
+            🎯 Evaluar pronunciación automáticamente al terminar de hablar
+          </label>
+        </div>
+
+        <div class="controls">
+          <button id="conv-clear-btn" class="btn secondary">🗑️ Nueva conversación</button>
+          <button id="conv-save-btn" class="btn secondary">💾 Guardar conversación</button>
+        </div>
+
+        <div class="conv-mode-row" id="conv-saved-row">
+          <label class="inline-label" for="conv-saved-select">Conversaciones guardadas:</label>
+          <select id="conv-saved-select">
+            <option value="">— Selecciona una conversación —</option>
+          </select>
+          <button id="conv-load-btn" class="btn secondary">📂 Cargar</button>
+          <button id="conv-delete-btn" class="btn secondary">🗑️ Eliminar</button>
+        </div>
+        <div id="conv-status" class="status" aria-live="polite"></div>
+      </section>
+
+      <div id="conv-messages"></div>
+
+      <!-- Botones flotantes de navegación: ir arriba / último mensaje -->
+      <div id="conv-nav-buttons" class="conv-nav-buttons hidden">
+        <button id="conv-top-btn" class="btn secondary" title="Ir al inicio de la conversación">⬆️ Inicio</button>
+        <button id="conv-bottom-btn" class="btn secondary" title="Ir al último mensaje">⬇️ Último</button>
+      </div>
+
+      <!-- Transcripción en vivo: justo encima del dock, siempre visible al hablar -->
+      <section id="conv-transcript-section" class="card hidden">
+        <h2>🗣️ Lo que escuché</h2>
+        <p id="conv-live-transcript" class="transcript">…</p>
+      </section>
+
+      <!-- Evaluación de pronunciación de la conversación -->
+      <section id="conv-pron-section" class="card hidden">
+        <h2>🎯 Pronunciación de tu intervención</h2>
+        <div class="conv-pron-layout">
+          <div class="score-circle neutral" id="conv-pron-score">–</div>
+          <div class="conv-pron-details">
+            <p id="conv-pron-summary" class="transcript">…</p>
+            <ul id="conv-pron-tips" class="tips-list"></ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- Barra de control fija: siempre visible sin subir/bajar -->
+      <div id="conv-dock" class="conv-dock">
+        <button id="conv-mic-btn-dock" class="btn primary big">🎤 Empezar a hablar</button>
+        <div id="conv-chat-row" class="conv-chat-row hidden">
+          <input type="text" id="conv-chat-input" placeholder="Escribe tu mensaje en inglés…" autocomplete="off">
+          <button id="conv-chat-send" class="btn primary">➤</button>
+        </div>
+        <button id="conv-eval-btn" class="btn accent" title="Evalúa la pronunciación de tu última intervención con IA">🤖 Evaluar pronunciación</button>
+        <span id="conv-dock-status" class="hint"></span>
+      </div>
+    </div>
+
+    <!-- ============ TAB: TRADUCCIÓN ============ -->
+    <div id="tab-translate" class="tab-content hidden">
+      <section class="card">
+        <h2>🌍 Traducción</h2>
+        <div class="translate-row">
+          <div class="translate-box">
+            <label for="translate-source">Texto de origen</label>
+            <textarea id="translate-source" rows="5" placeholder="Escribe o pega el texto a traducir..."></textarea>
+          </div>
+          <div class="translate-box">
+            <label for="translate-result">Traducción</label>
+            <textarea id="translate-result" rows="5" readonly placeholder="La traducción aparecerá aquí..."></textarea>
+          </div>
+        </div>
+        <div class="controls">
+          <select id="translate-direction" class="direction-select">
+            <option value="en-es" selected>Inglés → Español</option>
+            <option value="es-en">Español → Inglés</option>
+          </select>
+          <button id="translate-btn" class="btn accent big">🌍 Traducir</button>
+        </div>
+        <div id="translate-status" class="status" aria-live="polite"></div>
+        <div id="translate-model-badge"></div>
+      </section>
+
+      <section class="card">
+        <h2>🕘 Historial de traducciones</h2>
+        <p class="hint">Se guarda automáticamente cada traducción. Haz clic en una entrada para reutilizarla.</p>
+        <div class="controls">
+          <button id="translate-history-clear-btn" class="btn secondary">🗑️ Limpiar historial</button>
+        </div>
+        <div id="translate-history-list"></div>
+      </section>
+    </div>
+
+    <!-- ============ TAB: HISTORIAL ============ -->
+    <div id="tab-history" class="tab-content hidden">
+      <section class="card">
+        <h2>📋 Historial de práctica</h2>
+        <p class="hint">Se guarda automáticamente cada vez que evalúas una sesión de práctica o conversación. Límite: 100 sesiones.</p>
+        <div class="controls">
+          <button id="history-export-btn" class="btn secondary">💾 Exportar (JSON)</button>
+          <button id="history-clear-btn" class="btn secondary">🗑️ Limpiar historial</button>
+        </div>
+        <div id="history-list"></div>
+      </section>
+    </div>
+
+    <!-- ============ TAB: DICCIONARIO ============ -->
+    <div id="tab-dictionary" class="tab-content hidden">
+      <section class="card">
+        <h2>📖 Diccionario</h2>
+        <p class="hint">Busca cualquier palabra o frase en inglés: definición, traducción, pronunciación y ejemplos. También puedes escucharla con 🔊.</p>
+
+        <div class="input-row">
+          <input type="text" id="dict-search" placeholder="Escribe una palabra o frase en inglés (ej. achieve, breakthrough...)">
+          <button id="dict-search-btn" class="btn primary">🔍 Buscar</button>
+        </div>
+        <div id="dict-status" class="status" aria-live="polite"></div>
+      </section>
+
+      <section class="card">
+        <h2>🕘 Palabras buscadas</h2>
+        <p class="hint">Se guardan automáticamente tus búsquedas. Haz clic en una palabra para buscarla de nuevo.</p>
+        <div class="controls">
+          <button id="dict-history-clear-btn" class="btn secondary">🗑️ Limpiar historial</button>
+        </div>
+        <div id="dict-history-list"></div>
+      </section>
+
+      <section id="dict-result-section" class="card hidden">
+        <div class="dict-head">
+          <h2 id="dict-word"></h2>
+          <div class="dict-actions">
+            <button id="dict-speak-btn" class="btn secondary">🔊 Escuchar</button>
+            <button id="dict-practice-btn" class="btn accent">🎤 Practicar esta palabra</button>
+          </div>
+        </div>
+
+        <div class="dict-grid">
+          <div class="dict-box">
+            <h3>🌍 Traducción</h3>
+            <p id="dict-translation"></p>
+          </div>
+          <div class="dict-box">
+            <h3>📚 Tipo</h3>
+            <p id="dict-pos"></p>
+          </div>
+        </div>
+
+        <div class="dict-box">
+          <h3>📚 Definición (en inglés)</h3>
+          <p id="dict-definition"></p>
+        </div>
+
+        <div class="dict-box">
+          <h3>💬 Ejemplos</h3>
+          <ul id="dict-examples"></ul>
+        </div>
+
+        <div class="dict-box">
+          <h3>🔁 Sinónimos</h3>
+          <div id="dict-synonyms" class="phrase-chips"></div>
+        </div>
+
+        <div class="dict-box">
+          <h3>↔️ Antónimos</h3>
+          <div id="dict-antonyms" class="phrase-chips"></div>
+        </div>
+
+        <div class="dict-box">
+          <h3>🔗 Palabras relacionadas</h3>
+          <div id="dict-related" class="phrase-chips"></div>
+        </div>
+
+        <div id="dict-model-badge"></div>
+      </section>
+    </div>
+
+    <!-- ============ TAB: FONEMAS ============ -->
+    <div id="tab-phonemes" class="tab-content hidden">
+      <section class="card">
+        <h2>🔤 Fonemas difíciles para hispanohablantes</h2>
+        <p class="hint">Elige un sonido problemático, escucha los pares mínimos y practícalos en voz alta. La app evalúa si distinguiste bien los sonidos.</p>
+
+        <label for="phoneme-select">Sonido a practicar:</label>
+        <select id="phoneme-select"></select>
+        <p class="hint" id="phoneme-description"></p>
+
+        <div class="controls">
+          <button id="phoneme-pairs-btn" class="btn secondary">🎲 Otros pares mínimos</button>
+        </div>
+
+        <div id="phoneme-pairs" class="phoneme-pairs"></div>
+
+        <div class="controls">
+          <button id="phoneme-mic-btn" class="btn primary big">🎤 Leer los pares en voz alta</button>
+        </div>
+        <div id="phoneme-status" class="status" aria-live="polite"></div>
+      </section>
+
+      <section id="phoneme-results" class="card hidden">
+        <h2>🔊 Resultado por sonido</h2>
+        <div class="score-row">
+          <div class="score-circle" id="phoneme-score">--</div>
+          <div class="score-details">
+            <p id="phoneme-summary"></p>
+            <div id="phoneme-word-comparison"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>🕘 Historial de fonemas</h2>
+        <p class="hint">Se guarda automáticamente cada evaluación: sonido practicado, puntuación y palabras falladas.</p>
+        <div class="controls">
+          <button id="phoneme-history-clear-btn" class="btn secondary">🗑️ Limpiar historial</button>
+        </div>
+        <div id="phoneme-history-list"></div>
+      </section>
+    </div>
+
+    <!-- ============ TAB: REPASO (SRS) ============ -->
+    <div id="tab-review" class="tab-content hidden">
+      <section class="card">
+        <h2>🃏 Repaso — repetición espaciada</h2>
+        <p class="hint">Las palabras que fallas en la práctica se convierten en tarjetas. Repasa las que tocan hoy: escúchalas, practícalas en una frase y márcalas como sabidas.</p>
+
+        <div class="review-stats" id="review-stats"></div>
+
+        <div class="controls">
+          <button id="review-start-btn" class="btn primary big">▶️ Empezar repaso</button>
+          <button id="review-clear-btn" class="btn secondary">🗑️ Vaciar mazo</button>
+        </div>
+      </section>
+
+      <section id="review-worst-section" class="card">
+        <h2>📉 Palabras que más fallas</h2>
+        <p class="hint">Tus 10 palabras con más fallos. Genera frases nuevas con la IA para practicarlas en contexto.</p>
+        <div class="controls">
+          <button id="worst-practice-btn" class="btn accent">✨ Generar frases de práctica con IA</button>
+        </div>
+        <div id="worst-words-list"></div>
+        <div id="worst-practice-result"></div>
+      </section>
+
+      <section id="review-session" class="card hidden">
+        <h2 id="review-card-word"></h2>
+        <p class="hint" id="review-meta"></p>
+        <div class="review-actions">
+          <button id="review-speak-btn" class="btn secondary">🔊 Escuchar</button>
+          <button id="review-practice-btn" class="btn accent">🎤 Practicar en Práctica</button>
+          <button id="review-known-btn" class="btn primary">✅ La sé</button>
+          <button id="review-again-btn" class="btn secondary">🔁 Repasar pronto</button>
+        </div>
+        <p class="hint" id="review-sentence"></p>
+      </section>
+    </div>
+
+    <!-- ============ TAB: GRAMÁTICA ============ -->
+    <div id="tab-grammar" class="tab-content hidden">
+      <section class="card">
+        <h2>📐 Práctica de gramática</h2>
+        <p class="hint">Ejercicios generados con IA: según tus deficiencias detectadas en conversaciones o por temas, según tu nivel.</p>
+
+        <label for="grammar-topic">Modo:</label>
+        <select id="grammar-topic">
+          <option value="weaknesses" selected>🎯 Según mis deficiencias</option>
+          <option value="auto">🎲 Tema del nivel (aleatorio)</option>
+          <option value="specific">📌 Elegir tema específico</option>
+        </select>
+        <select id="grammar-specific-topic" class="hidden"></select>
+        <p class="hint" id="grammar-topic-hint">La IA analizará tus últimas respuestas con correcciones para crear el ejercicio.</p>
+
+        <div class="controls">
+          <button id="grammar-generate-btn" class="btn primary big">✨ Generar ejercicio</button>
+        </div>
+        <div id="grammar-status" class="status" aria-live="polite"></div>
+      </section>
+
+      <section id="grammar-exercise-section" class="card hidden">
+        <h2 id="grammar-title"></h2>
+        <div id="grammar-questions"></div>
+        <div class="controls">
+          <button id="grammar-check-btn" class="btn primary">✅ Corregir</button>
+          <button id="grammar-new-btn" class="btn secondary">🔄 Otro ejercicio</button>
+        </div>
+        <div id="grammar-result" class="status" aria-live="polite"></div>
+      </section>
+    </div>
+
+    <!-- ============ TAB: VOCABULARIO ============ -->
+    <div id="tab-vocabulary" class="tab-content hidden">
+      <section class="card">
+        <h2>🧠 Práctica de vocabulario</h2>
+        <p class="hint">Aprende palabras nuevas generadas con IA: según tus deficiencias (palabras que más fallas) o por temas, según tu nivel.</p>
+
+        <label for="vocab-topic">Modo:</label>
+        <select id="vocabulary-topic">
+          <option value="weaknesses" selected>🎯 Según mis deficiencias</option>
+          <option value="auto">🎲 Tema del nivel (aleatorio)</option>
+          <option value="specific">📌 Elegir tema específico</option>
+        </select>
+        <select id="vocabulary-specific-topic" class="hidden"></select>
+        <p class="hint" id="vocabulary-topic-hint">La IA usará las palabras que más fallas en la pronunciación para crear el ejercicio.</p>
+
+        <div class="controls">
+          <button id="vocabulary-generate-btn" class="btn primary big">✨ Generar ejercicio</button>
+        </div>
+        <div id="vocabulary-status" class="status" aria-live="polite"></div>
+      </section>
+
+      <section id="vocabulary-exercise-section" class="card hidden">
+        <h2 id="vocabulary-exercise-title"></h2>
+        <div id="vocabulary-questions"></div>
+        <div class="controls">
+          <button id="vocabulary-check-btn" class="btn primary">✅ Corregir</button>
+          <button id="vocabulary-new-btn" class="btn secondary">🔄 Otro ejercicio</button>
+        </div>
+        <div id="vocabulary-result" class="status" aria-live="polite"></div>
+      </section>
+    </div>
+
+    <!-- ============ TAB: PROGRESO ============ -->
+    <div id="tab-progress" class="tab-content hidden">
+      <section class="card">
+        <h2>📈 Mi progreso</h2>
+        <p class="hint">Evolución de tus puntuaciones en las últimas sesiones de práctica.</p>
+        <label for="progress-level-filter">Filtrar por nivel:</label>
+        <select id="progress-level-filter">
+          <option value="all" selected>Todos los niveles</option>
+          <option value="beginner">🟢 Principiante</option>
+          <option value="intermediate">🟡 Intermedio</option>
+          <option value="advanced">🔴 Avanzado</option>
+        </select>
+        <div class="progress-summary" id="progress-summary"></div>
+        <div class="chart-container">
+          <canvas id="progress-chart"></canvas>
+        </div>
+        <details class="chart-collapse">
+          <summary>📊 Por habilidad</summary>
+          <p class="hint">Cada habilidad por separado, con la misma información del gráfico general.</p>
+          <div class="skill-charts-grid" id="skill-charts-grid">
+            <div class="skill-chart-box">
+              <h4>🔊 Pronunciación</h4>
+              <div class="chart-container small">
+                <canvas id="skill-chart-pronunciation"></canvas>
+              </div>
+            </div>
+            <div class="skill-chart-box">
+              <h4>📚 Gramática</h4>
+              <div class="chart-container small">
+                <canvas id="skill-chart-grammar"></canvas>
+              </div>
+            </div>
+            <div class="skill-chart-box">
+              <h4>💡 Vocabulario</h4>
+              <div class="chart-container small">
+                <canvas id="skill-chart-vocabulary"></canvas>
+              </div>
+            </div>
+          </div>
+        </details>
+        <p class="hint" id="progress-empty" style="display:none">Aún no hay datos suficientes. Haz al menos una práctica con evaluación para ver tu progreso.</p>
+      </section>
+
+      <section class="card">
+        <h2>📐 Resultados de ejercicios</h2>
+        <p class="hint">Puntuaciones de los ejercicios de gramática y vocabulario, con los mismos filtros de nivel.</p>
+
+        <details class="chart-collapse">
+          <summary>🗂️ Por conjunto</summary>
+          <p class="hint">Evolución de tus puntuaciones: gramática vs vocabulario.</p>
+          <div class="chart-container">
+            <canvas id="exercise-set-chart"></canvas>
+          </div>
+        </details>
+
+        <details class="chart-collapse">
+          <summary>🏷️ Por temática</summary>
+          <p class="hint">Media de puntuación por tema practicado. Azul: gramática · Verde: vocabulario.</p>
+          <div class="chart-container tall">
+            <canvas id="exercise-topic-chart"></canvas>
+          </div>
+        </details>
+      </section>
+
+      <section class="card">
+        <h2>🔥 Rachas y metas diarias</h2>
+        <div class="streak-row" id="streak-row"></div>
+        <p class="hint" id="streak-hint"></p>
+      </section>
+
+      <section class="card">
+        <h2>📊 Seguimiento por actividad</h2>
+        <p class="hint">Sesiones registradas en cada actividad. Cualquier actividad cuenta para mantener la racha.</p>
+        <div id="activity-tracking"></div>
+      </section>
+    </div>
+
+    <!-- ============ TAB: CONFIGURACIÓN ============ -->
+    <div id="tab-settings" class="tab-content hidden">
+      <section class="card">
+        <h2>⚙️ Configuración</h2>
+
+        <h3>🔑 Google Gemini</h3>
+        <label for="api-key">Clave de API:</label>
+        <div class="input-row">
+          <input type="password" id="api-key" placeholder="Pega tu clave de API aquí (AIza...)">
+          <button id="save-key-btn" class="btn secondary">Guardar</button>
+        </div>
+        <p class="hint">La clave se guarda solo en tu navegador (localStorage). Consíguela gratis en <a href="https://aistudio.google.com/apikey" target="_blank">Google AI Studio</a>.</p>
+
+        <h3>🌐 Preferencias</h3>
+        <label for="voice-select">Voz para escuchar el texto objetivo (🔊):</label>
+        <select id="voice-select">
+          <option value="">Voz del sistema por defecto</option>
+        </select>
+        <p class="hint">Muestra las voces en inglés instaladas en tu sistema. En Edge, las voces "Natural" (Online) suenan muy realistas. Prueba con 🔊 Escuchar en la pestaña Práctica.</p>
+
+        <div class="voice-tester">
+          <label for="voice-test-text">Probar la voz seleccionada:</label>
+          <div class="input-row">
+            <input type="text" id="voice-test-text" placeholder="Escribe una frase para probar..." value="Hello! This is how I sound. Let's practice English together.">
+            <button id="voice-test-btn" class="btn secondary">▶ Probar</button>
+            <button id="voice-test-stop-btn" class="btn secondary">⏹</button>
+          </div>
+        </div>
+
+        <label for="explanation-lang">Idioma de las explicaciones (gramática y vocabulario):</label>
+        <select id="explanation-lang">
+          <option value="es" selected>Español</option>
+          <option value="en">English</option>
+        </select>
+        <label for="difficulty-level">Nivel de dificultad (MCER):</label>
+        <select id="difficulty-level">
+          <option value="beginner" selected>🟢 Principiante — A1 a A2</option>
+          <option value="intermediate">🟡 Intermedio — B1 a B2</option>
+          <option value="advanced">🔴 Avanzado — C1 a C2</option>
+        </select>
+
+        <h3>👥 Perfiles de usuario</h3>
+        <p class="hint">Cada perfil tiene sus propios historiales, progreso, rachas y nivel. La clave de API y los ajustes de voz son compartidos.</p>
+        <div class="input-row">
+          <select id="profile-select"></select>
+          <button id="profile-switch-btn" class="btn primary">✔️ Cambiar a este perfil</button>
+        </div>
+        <div class="input-row">
+          <input type="text" id="profile-new-name" placeholder="Nombre del nuevo perfil" maxlength="30">
+          <button id="profile-create-btn" class="btn secondary">➕ Crear perfil</button>
+        </div>
+        <div class="usage-footer">
+          <button id="profile-rename-btn" class="btn secondary">✏️ Renombrar perfil activo</button>
+          <button id="profile-delete-btn" class="btn secondary">🗑️ Eliminar perfil activo</button>
+        </div>
+        <p class="hint" id="profile-status"></p>
+
+        <h3>💾 Respaldo de datos</h3>
+        <p class="hint">Exporta todos tus historiales, progreso y conversaciones a un archivo JSON, o restaura una copia previa. La clave de API no se incluye.</p>
+        <div class="usage-footer">
+          <button id="data-export-btn" class="btn primary">⬇️ Exportar datos</button>
+          <button id="data-import-btn" class="btn secondary">📥 Importar copia</button>
+          <input type="file" id="data-import-file" accept="application/json,.json" class="hidden">
+        </div>
+        <p class="hint" id="data-backup-status"></p>
+
+        <h3>🔄 Sincronización con archivo (File System Access)</h3>
+        <p class="hint">Vincula un archivo JSON de tu disco (p. ej. en OneDrive/Drive) y la app guardará automáticamente cada cambio. Compatible con Chrome y Edge de escritorio.</p>
+        <div class="usage-footer">
+          <button id="fs-sync-connect-btn" class="btn primary">🔗 Vincular archivo</button>
+          <button id="fs-sync-now-btn" class="btn secondary">💾 Guardar ahora</button>
+          <button id="fs-sync-load-btn" class="btn secondary">📂 Cargar desde archivo</button>
+          <button id="fs-sync-disconnect-btn" class="btn secondary">✖️ Desvincular</button>
+        </div>
+        <p class="hint" id="fs-sync-status"></p>
+
+        <h3>⚡ Respaldo local con Ollama (opcional, sin internet)</h3>
+        <label for="ollama-url">URL de Ollama:</label>
+        <input type="text" id="ollama-url" placeholder="http://localhost:11434">
+        <label for="ollama-model">Modelo (detectado automáticamente):</label>
+        <div class="input-row">
+          <select id="ollama-model">
+            <option value="">— Escribe la URL y pulsa "Buscar modelos" —</option>
+          </select>
+          <button id="ollama-refresh-models" class="btn secondary" style="max-width:170px">🔄 Buscar modelos</button>
+        </div>
+        <p class="hint" id="ollama-models-status"></p>
+        <label class="checkbox-row">
+          <input type="checkbox" id="ollama-direct">
+          ⚡ Usar Ollama directamente (sin pasar por Gemini)
+        </label>
+        <p class="hint">Si Gemini no está disponible (sin internet o saturado), se usará tu Ollama local. Instálalo desde <a href="https://ollama.com" target="_blank">ollama.com</a> y descarga un modelo con <code>ollama pull llama3.2</code>.</p>
+
+        <h3>📊 Uso de Gemini (plan gratuito)</h3>
+        <p class="hint">Contador local: la app registra cada petición que hace. El límite diario del plan gratuito se reinicia a medianoche, hora del Pacífico (PST/PDT).</p>
+        <div id="gemini-usage-list"></div>
+        <div class="usage-footer">
+          <button id="gemini-usage-refresh" class="btn secondary">🔄 Actualizar</button>
+          <button id="gemini-usage-reset" class="btn secondary">🧹 Reiniciar contador</button>
+        </div>
+        <p class="hint">⚠️ El contador es aproximado: solo registra las peticiones hechas desde esta app en este navegador. Si usas la clave en otros proyectos, el uso real puede ser mayor. Consulta los límites oficiales en <a href="https://ai.google.dev/pricing" target="_blank">ai.google.dev/pricing</a>.</p>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    <p>App local · Tu voz se procesa en el navegador y el texto se analiza con Gemini</p>
+  </footer>
+
+  <div id="toast-container"></div>
+
+  <!-- Popup de palabra/frase: audio + traducción -->
+  <div id="word-popup" class="word-popup hidden">
+    <div class="word-popup-head">
+      <b id="word-popup-word"></b>
+      <button id="word-popup-close" class="btn secondary">✕</button>
+    </div>
+    <div class="word-popup-actions">
+      <button id="word-popup-speak" class="btn secondary">🔊 Escuchar</button>
+      <button id="word-popup-translate-btn" class="btn accent">🌍 Traducir</button>
+      <button id="word-popup-dict-btn" class="btn secondary">📖 Diccionario</button>
+    </div>
+    <p id="word-popup-translation" class="word-popup-translation"></p>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="app.js?v=3"></script>
+</body>
+</html>

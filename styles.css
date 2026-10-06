@@ -1,0 +1,1437 @@
+:root {
+  --bg: #0f1220;
+  --card: #1a1f35;
+  --card-border: #2a3050;
+  --text: #e8eaf6;
+  --muted: #9aa3c0;
+  --primary: #6c8cff;
+  --accent: #b388ff;
+  --good: #4caf7d;
+  --warn: #ffb74d;
+  --bad: #ef5350;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+header {
+  text-align: center;
+  padding: clamp(16px, 3vw, 36px) 16px 8px;
+}
+
+header h1 { font-size: clamp(1.35rem, 2.5vw, 1.9rem); }
+.subtitle { color: var(--muted); margin-top: 4px; font-size: 0.95rem; }
+
+main {
+  flex: 1;
+  width: 100%;
+  /* Ancho fluido: se adapta a la pantalla sin quedar ni apretado ni explayado */
+  max-width: clamp(680px, 92vw, 1180px);
+  margin: 0 auto;
+  padding: clamp(12px, 2vw, 28px);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(12px, 1.6vw, 22px);
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  padding: clamp(14px, 2.2vw, 26px);
+}
+
+.card h2 { font-size: 1.1rem; margin-bottom: 12px; }
+
+.card h3 {
+  margin: 20px 0 10px;
+  font-size: 0.95rem;
+  color: var(--primary);
+  border-bottom: 1px solid var(--card-border);
+  padding-bottom: 6px;
+}
+
+.card h3:first-of-type { margin-top: 0; }
+
+.hidden { display: none; }
+
+label { display: block; margin-bottom: 6px; color: var(--muted); font-size: 0.9rem; }
+
+input[type="password"], textarea, select {
+  width: 100%;
+  background: #12162a;
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  color: var(--text);
+  padding: 10px 12px;
+  font-size: 1rem;
+  font-family: inherit;
+  resize: vertical;
+}
+
+/* Textarea objetivo: crece con el contenido (auto-ajuste desde app.js) */
+#target-text {
+  min-height: 72px;
+  max-height: 400px;
+  overflow-y: auto;
+  line-height: 1.6;
+  font-size: 1.05rem;
+}
+
+input:focus, textarea:focus, select:focus { outline: 1px solid var(--primary); }
+
+.input-row { display: flex; gap: 8px; }
+.input-row input { flex: 1; }
+
+.hint { color: var(--muted); font-size: 0.85rem; margin-top: 8px; }
+.hint a { color: var(--primary); }
+
+.btn {
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  color: #fff;
+  transition: filter 0.15s, transform 0.05s;
+}
+
+.btn:hover { filter: brightness(1.15); }
+.btn:active { transform: scale(0.98); }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.btn.primary { background: var(--primary); }
+.btn.accent { background: var(--accent); }
+.btn.secondary { background: #3a4160; }
+
+.btn.big { font-size: 1.05rem; padding: 14px 22px; }
+
+.btn.chip {
+  background: #262c4a;
+  font-size: 0.8rem;
+  padding: 6px 12px;
+  border-radius: 999px;
+}
+
+.phrase-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-top: 10px;
+}
+
+#refresh-phrases-btn {
+  padding: 6px 12px;
+  font-size: 0.85rem;
+}
+
+#ollama-models-status {
+  white-space: pre-line;
+}
+
+/* ---------- Uso de Gemini ---------- */
+.usage-row {
+  margin-bottom: 12px;
+}
+
+.usage-row-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+
+.usage-row-head code {
+  font-size: 0.85rem;
+  color: var(--primary);
+}
+
+.usage-bar {
+  height: 8px;
+  background: #1a1f38;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.usage-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.3s;
+}
+
+.usage-footer {
+  display: flex;
+  gap: 8px;
+  margin: 12px 0;
+  flex-wrap: wrap;
+}
+
+.usage-reset {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+/* ---------- Probador de voz ---------- */
+.voice-tester {
+  margin-top: 12px;
+  padding: 12px;
+  background: rgba(108, 140, 255, 0.06);
+  border: 1px dashed var(--card-border);
+  border-radius: 10px;
+}
+
+/* ---------- Modo de conversación ---------- */
+.conv-mode-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 12px 0 4px;
+}
+
+.conv-mode-row select {
+  background: #12162a;
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  color: var(--text);
+  padding: 8px 10px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  max-width: 240px;
+}
+
+/* ---------- Popup de palabra (audio + traducción) ---------- */
+.word-popup {
+  position: absolute;
+  z-index: 900;
+  width: 260px;
+  background: var(--card);
+  border: 1px solid var(--primary);
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+}
+
+.word-popup-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.word-popup-head b {
+  font-size: 1.05rem;
+  color: var(--primary);
+}
+
+.word-popup-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.word-popup-actions .btn {
+  padding: 6px 10px;
+  font-size: 0.85rem;
+}
+
+.word-popup-translation {
+  margin-top: 10px;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+/* ---------- Diccionario ---------- */
+.dict-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.dict-head h2 {
+  margin-bottom: 0;
+  color: var(--primary);
+  font-size: 1.4rem;
+}
+
+.dict-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.dict-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.dict-box {
+  background: #12162a;
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 12px;
+}
+
+.dict-box h3 {
+  margin: 0 0 8px;
+  font-size: 0.9rem;
+  color: var(--muted);
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.dict-box p, .dict-box ul {
+  margin: 0;
+  line-height: 1.6;
+}
+
+.dict-box ul {
+  padding-left: 20px;
+}
+
+.dict-box li {
+  margin-bottom: 6px;
+}
+
+@media (max-width: 600px) {
+  .dict-grid { grid-template-columns: 1fr; }
+}
+
+/* Palabras clickeables */
+.clickable-word {
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+
+.clickable-word:hover {
+  background: rgba(108, 140, 255, 0.18);
+  outline: 1px solid var(--primary);
+}
+
+.controls {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+.controls .btn { flex: 1; min-width: 200px; }
+
+.status {
+  margin-top: 12px;
+  min-height: 24px;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.status.listening { color: var(--good); font-weight: 600; }
+.status.error { color: var(--bad); }
+
+.transcript {
+  font-size: 1.15rem;
+  line-height: 1.6;
+  min-height: 1.5em;
+}
+
+.score-row {
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+}
+
+.score-circle {
+  min-width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+  background: #12162a;
+  border: 3px solid var(--muted);
+}
+
+.score-circle.good { border-color: var(--good); color: var(--good); }
+.score-circle.warn { border-color: var(--warn); color: var(--warn); }
+.score-circle.bad { border-color: var(--bad); color: var(--bad); }
+
+.score-details { flex: 1; }
+.score-details p { margin-bottom: 10px; }
+
+.word {
+  display: inline-block;
+  padding: 3px 8px;
+  margin: 3px 4px 3px 0;
+  border-radius: 6px;
+  font-size: 0.95rem;
+}
+
+.word.ok { background: rgba(76, 175, 125, 0.15); color: var(--good); }
+.word.miss { background: rgba(239, 83, 80, 0.18); color: var(--bad); text-decoration: line-through; }
+.word.extra { background: rgba(255, 183, 77, 0.15); color: var(--warn); }
+
+.issue {
+  background: #12162a;
+  border-left: 3px solid var(--warn);
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  font-size: 0.92rem;
+}
+
+.issue .issue-type { color: var(--warn); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; }
+.issue .suggestion { color: var(--good); margin-top: 4px; }
+
+.vocab-suggestion {
+  background: #12162a;
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  font-size: 0.92rem;
+}
+
+.vocab-suggestion .original { color: var(--bad); }
+.vocab-suggestion .arrow { color: var(--muted); margin: 0 6px; }
+.vocab-suggestion .better { color: var(--accent); font-weight: 600; }
+
+footer {
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.8rem;
+  padding: 16px;
+}
+
+/* ---------- Pestañas ---------- */
+.tabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+.tab {
+  background: #1a1f35;
+  border: 1px solid var(--card-border);
+  border-radius: 10px 10px 0 0;
+  color: var(--muted);
+  padding: 10px 18px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.tab:hover { color: var(--text); }
+
+.tab.active {
+  background: var(--card);
+  border-bottom-color: var(--card);
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* ---------- Desplegables de navegación ---------- */
+.tab-dropdown {
+  position: relative;
+}
+
+.tab-dropdown summary {
+  list-style: none;
+  cursor: pointer;
+  background: #1a1f35;
+  border: 1px solid var(--card-border);
+  border-radius: 10px 10px 0 0;
+  color: var(--muted);
+  padding: 10px 18px;
+  font-size: 0.95rem;
+  user-select: none;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.tab-dropdown summary::-webkit-details-marker { display: none; }
+
+.tab-dropdown summary:hover { color: var(--text); }
+
+.tab-dropdown[open] summary {
+  background: var(--card);
+  color: var(--text);
+  font-weight: 600;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  min-width: 200px;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 0 10px 10px 10px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
+  padding: 6px;
+  gap: 2px;
+}
+
+.dropdown-menu .tab {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  padding: 10px 12px;
+}
+
+.dropdown-menu .tab:hover {
+  background: rgba(108, 140, 255, 0.12);
+}
+
+.dropdown-menu .tab.active {
+  background: rgba(108, 140, 255, 0.15);
+  color: var(--text);
+  font-weight: 600;
+}
+
+.tab-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.tab-content.hidden { display: none; }
+
+/* ---------- Conversación (chat) ---------- */
+.message {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  max-width: 90%;
+}
+
+.message.user {
+  margin-left: auto;
+  border-left: 3px solid var(--primary);
+}
+
+.message.assistant {
+  margin-right: auto;
+  border-left: 3px solid var(--accent);
+}
+
+.message .message-role {
+  font-size: 0.75rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.message .message-text { font-size: 1rem; line-height: 1.5; }
+
+.message .message-corrections {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--card-border);
+  font-size: 0.88rem;
+}
+
+.message .message-corrections .suggestion { color: var(--good); }
+
+/* ---------- Traducción ---------- */
+.translate-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.translate-box {
+  flex: 1;
+  min-width: 260px;
+}
+
+.direction-select { max-width: 220px; }
+
+/* ---------- Controles de escucha (síntesis de voz) ---------- */
+.listen-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.listen-controls .inline-label {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin-left: 8px;
+}
+
+.listen-controls select {
+  background: #12162a;
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  color: var(--text);
+  padding: 8px 10px;
+  font-size: 0.9rem;
+  font-family: inherit;
+}
+
+/* ---------- Checkbox ---------- */
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  color: var(--text);
+  font-size: 0.92rem;
+  cursor: pointer;
+}
+
+.checkbox-row input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+/* ---------- Historial ---------- */
+.history-item {
+  background: #12162a;
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 10px;
+}
+
+.history-item .history-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.history-item .history-date { color: var(--muted); font-size: 0.8rem; }
+
+.history-item .history-mode {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: rgba(179, 136, 255, 0.12);
+  border-radius: 999px;
+  padding: 2px 10px;
+}
+
+.history-item .history-text {
+  font-size: 0.92rem;
+  margin-bottom: 8px;
+  color: var(--text);
+}
+
+.history-item .history-scores {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.history-item .history-score {
+  font-size: 0.8rem;
+  background: #1a1f35;
+  border-radius: 6px;
+  padding: 4px 10px;
+  color: var(--muted);
+}
+
+.history-item .history-scores b { color: var(--text); }
+
+/* ---------- Notificaciones (toast) ---------- */
+#toast-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 340px;
+}
+
+.toast {
+  background: #1a1f35;
+  border: 1px solid var(--card-border);
+  border-left: 4px solid var(--primary);
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 0.9rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  animation: toast-in 0.25s ease-out;
+}
+
+.toast.warning { border-left-color: var(--warn); }
+.toast.success { border-left-color: var(--good); }
+.toast.error { border-left-color: var(--bad); }
+
+.toast.fade-out {
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+
+@keyframes toast-in {
+  from { transform: translateY(12px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* ---------- Progreso ---------- */
+.chart-container {
+  position: relative;
+  height: 320px;
+  margin-top: 12px;
+}
+
+.progress-summary {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.progress-stat {
+  flex: 1;
+  min-width: 140px;
+  background: #12162a;
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  text-align: center;
+}
+
+.progress-stat .stat-label {
+  font-size: 0.78rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.progress-stat .stat-value {
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.progress-stat .stat-delta {
+  font-size: 0.8rem;
+  margin-top: 2px;
+}
+
+.stat-delta-up { color: var(--good); }
+.stat-delta-down { color: var(--bad); }
+.stat-delta-flat { color: var(--muted); }
+
+/* ---------- Fonemas / pares mínimos ---------- */
+.phoneme-pairs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.phoneme-pair {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #232946;
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.phoneme-pair:hover { border-color: var(--primary); }
+
+.phoneme-pair .pair-word { font-weight: 600; }
+.phoneme-pair .pair-sep { color: var(--muted); }
+
+/* ---------- Repaso (SRS) ---------- */
+.review-stats {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 12px 0;
+}
+
+.review-stat {
+  background: #232946;
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  padding: 12px 18px;
+  text-align: center;
+}
+
+.review-stat .stat-value { font-size: 1.4rem; font-weight: 700; color: var(--primary); }
+.review-stat .stat-label { color: var(--muted); font-size: 0.8rem; }
+
+.review-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 12px 0;
+}
+
+/* ---------- Comparación de audio ---------- */
+.audio-compare {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+  padding: 12px;
+  background: #232946;
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+}
+
+.audio-compare-box {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 220px;
+}
+
+.audio-compare audio { width: 100%; height: 36px; }
+
+/* ---------- Dictado ---------- */
+.dictation-box {
+  margin-top: 12px;
+  padding: 12px;
+  background: #232946;
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+}
+
+.dictation-box textarea { width: 100%; margin-top: 8px; }
+
+.dictation-result { margin-top: 10px; }
+
+.dictation-result .word { margin: 2px; }
+
+/* ---------- Análisis de ritmo y entonación ---------- */
+.rhythm-analysis {
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: #232946;
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  font-size: 0.9rem;
+}
+
+.rhythm-analysis .rhythm-title { font-weight: 600; color: var(--accent); margin-bottom: 6px; }
+
+/* ---------- Rachas ---------- */
+.streak-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.streak-row .review-stat .stat-value.fire { color: var(--warn); }
+
+.fail-count { color: var(--bad); margin-left: 4px; }
+
+.day-dot.done { border-color: var(--primary); }
+.day-dot.started { opacity: 0.6; }
+
+.word.close { background: rgba(255, 183, 77, 0.22); color: var(--warn); }
+
+/* ---------- Medidor de nivel de micrófono ---------- */
+.mic-level-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.mic-level-bar {
+  flex: 1;
+  max-width: 320px;
+  height: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+#mic-level-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #4caf7d, #ffd166, #ef5350);
+  transition: width 0.08s linear;
+}
+
+#mic-level-fill.silent {
+  background: var(--muted);
+}
+
+/* ---------- Historial de traducciones y búsquedas ---------- */
+.history-entry {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 12px;
+  width: 100%;
+  text-align: left;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-top: 8px;
+  cursor: pointer;
+  color: var(--text);
+  font: inherit;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.history-entry:hover { border-color: var(--primary); }
+.history-entry.active { border-color: var(--primary); background: rgba(102, 126, 234, 0.12); }
+
+.history-entry .entry-direction {
+  grid-column: 1;
+  font-size: 0.75rem;
+  color: var(--primary);
+  font-weight: 600;
+  align-self: center;
+}
+
+.history-entry .entry-source {
+  grid-column: 2;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.history-entry .entry-result {
+  grid-column: 2;
+  color: var(--muted);
+  font-size: 0.9rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.history-entry .entry-date {
+  grid-column: 2;
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+.chip .chip-word { font-weight: 600; }
+.chip .chip-translation { color: var(--muted); margin-left: 6px; font-size: 0.85rem; }
+
+/* ---------- Ajuste responsivo de la app a la pantalla ---------- */
+
+/* Pantallas grandes: aprovechar el ancho sin explayar el contenido */
+@media (min-width: 1100px) {
+  /* Los resultados de práctica en 2 columnas: puntuación/ritmo a la izquierda,
+     gramática/vocabulario a la derecha */
+  #results-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    align-items: start;
+  }
+
+  #results-section > .card { margin: 0; }
+
+  /* El historial de traducciones y el diccionario no se estiran de más */
+  .history-entry { max-width: 100%; }
+}
+
+/* Tablets: reducir controles que se aprietan */
+@media (max-width: 720px) {
+  .controls .btn { min-width: 150px; }
+  .input-row { flex-direction: column; }
+  .input-row .btn { width: 100%; }
+  .direction-select { max-width: none; }
+}
+
+/* Móviles pequeños */
+@media (max-width: 480px) {
+  .tabs { flex-wrap: wrap; }
+  .tab { padding: 8px 10px; font-size: 0.85rem; }
+  .controls .btn { min-width: 100%; }
+  .score-row { flex-direction: column; align-items: center; }
+}
+
+/* ---------- Dock fijo de conversación ---------- */
+/* Barra de control pegajosa en la parte inferior de la pestaña:
+   el botón de grabar/parar siempre queda a la vista sin subir ni bajar */
+.conv-dock {
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px;
+  margin-top: auto;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  box-shadow: 0 -6px 18px rgba(0, 0, 0, 0.35);
+}
+
+.conv-dock .btn { flex-shrink: 0; }
+.conv-dock .hint { flex: 1; }
+
+/* ---------- Fila de chat en el dock (modo texto) ---------- */
+.conv-chat-row {
+  display: flex;
+  flex: 1;
+  gap: 8px;
+  min-width: 0;
+}
+
+.conv-chat-row input {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--card-border);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text);
+  font-size: 1rem;
+}
+
+.conv-chat-row input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.conv-chat-row .btn { padding: 10px 16px; }
+
+/* ---------- Puntuaciones por turno en conversación ---------- */
+.message-scores {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.turn-score {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.turn-score b.good { color: var(--good); }
+.turn-score b.warn { color: var(--warn); }
+.turn-score b.bad { color: var(--bad); }
+
+/* ---------- Evaluación de pronunciación en conversación ---------- */
+.conv-pron-layout {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+}
+
+.conv-pron-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.tips-list {
+  margin: 8px 0 0;
+  padding-left: 20px;
+  color: var(--muted);
+}
+
+.tips-list li { margin-top: 4px; }
+
+.score-circle.neutral {
+  border-color: var(--card-border);
+  color: var(--muted);
+}
+
+/* Botón de evaluación en el dock: oculto hasta que haya audio grabado */
+#conv-eval-btn.hidden { display: none; }
+
+/* ---------- Seguimiento por actividad ---------- */
+.activity-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--card-border);
+  flex-wrap: wrap;
+}
+
+.activity-row:last-child { border-bottom: none; }
+
+.activity-name {
+  flex: 1;
+  min-width: 140px;
+  font-weight: 600;
+}
+
+.activity-count {
+  font-size: 0.9rem;
+  padding: 2px 10px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.activity-count.today {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.activity-count.total { color: var(--muted); }
+
+.activity-days {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.day-mark {
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--card-border);
+  display: inline-block;
+}
+
+.day-mark.on {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+/* ---------- Historial de conversaciones guardadas ---------- */
+#conv-saved-row {
+  align-items: center;
+}
+
+#conv-saved-select {
+  flex: 1;
+  min-width: 180px;
+}
+
+/* ---------- Botones flotantes de navegación de conversación ---------- */
+.conv-nav-buttons {
+  position: fixed;
+  right: 18px;
+  bottom: 90px;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.conv-nav-buttons .btn {
+  padding: 8px 14px;
+  font-size: 0.9rem;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(6px);
+}
+
+#conv-nav-buttons.hidden { display: none; }
+
+/* ---------- Popup adaptado a frases y párrafos ---------- */
+.word-popup {
+  max-width: min(420px, calc(100vw - 24px));
+}
+
+.word-popup-head b {
+  display: block;
+  max-width: 340px;
+  overflow-wrap: anywhere;
+  font-size: 0.95rem;
+}
+
+.word-popup-translation {
+  max-width: 380px;
+  word-wrap: break-word;
+}
+
+/* ---------- Insignia de modelo usado ---------- */
+.model-badge {
+  margin-top: 10px;
+  font-size: 0.78rem;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  padding: 3px 10px;
+  display: inline-block;
+}
+
+.message .model-badge {
+  margin-top: 6px;
+  font-size: 0.75rem;
+  padding: 2px 8px;
+}
+
+/* ---------- Gráficos por habilidad ---------- */
+.skill-charts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.skill-chart-box {
+  background: rgba(26, 31, 53, 0.5);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.skill-chart-box h4 {
+  margin: 0 0 8px;
+  font-size: 0.95rem;
+  color: var(--text);
+}
+
+.chart-container.small {
+  height: 200px;
+}
+
+/* ---------- Indicador de racha en el header ---------- */
+.header-streak {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  padding: 6px 16px;
+  background: rgba(26, 31, 53, 0.7);
+  border: 1px solid var(--card-border);
+  border-radius: 999px;
+  font-size: 0.95rem;
+  color: var(--text);
+  cursor: pointer;
+  transition: background 0.15s, transform 0.15s;
+}
+
+.header-streak:hover {
+  background: rgba(108, 140, 255, 0.12);
+  transform: translateY(-1px);
+}
+
+.header-streak .hs-fire { font-weight: 700; }
+.header-streak .hs-sep { color: var(--muted); }
+.header-streak .hs-goal { color: #4caf7d; font-weight: 600; }
+.header-streak .hs-best { color: #ffd54f; }
+
+/* ---------- Ejercicios de gramática y vocabulario ---------- */
+.exercise-question {
+  background: rgba(26, 31, 53, 0.5);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 12px;
+}
+
+.exercise-sentence {
+  margin: 0 0 10px;
+  font-size: 1.05rem;
+  line-height: 1.5;
+}
+
+.exercise-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.exercise-option.selected {
+  outline: 2px solid #6c8cff;
+  background: rgba(108, 140, 255, 0.15);
+}
+
+.exercise-option.correct {
+  border-color: #4caf7d;
+  background: rgba(76, 175, 125, 0.2);
+}
+
+.exercise-option.wrong {
+  border-color: #e57373;
+  background: rgba(229, 115, 115, 0.15);
+}
+
+.exercise-input {
+  width: 100%;
+  max-width: 320px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--card-border);
+  background: #12172b;
+  color: var(--text);
+  font-size: 1rem;
+}
+
+.exercise-input.correct {
+  border-color: #4caf7d;
+  background: rgba(76, 175, 125, 0.12);
+}
+
+.exercise-input.wrong {
+  border-color: #e57373;
+  background: rgba(229, 115, 115, 0.12);
+}
+
+.exercise-explanation {
+  margin: 10px 0 0;
+  color: #9aa3c0;
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+/* ---------- Historial de fonemas ---------- */
+.phoneme-history-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--card-border);
+}
+
+.phoneme-history-row:last-child { border-bottom: none; }
+
+.phoneme-history-row .ph-score {
+  min-width: 42px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 1.05rem;
+  padding: 4px 8px;
+  border-radius: 8px;
+  background: rgba(26, 31, 53, 0.7);
+}
+
+.phoneme-history-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.phoneme-history-name {
+  font-weight: 600;
+}
+
+.phoneme-history-missed {
+  color: #9aa3c0;
+  font-size: 0.85rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.phoneme-history-date {
+  color: #9aa3c0;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.chart-container.tall {
+  height: 320px;
+}
+
+/* ---------- Subsecciones colapsables de gráficos ---------- */
+details.chart-collapse {
+  margin: 14px 0 6px;
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  background: rgba(26, 31, 53, 0.4);
+  overflow: hidden;
+}
+
+details.chart-collapse > summary {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text);
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s;
+}
+
+details.chart-collapse > summary::-webkit-details-marker { display: none; }
+
+details.chart-collapse > summary::after {
+  content: '▾';
+  margin-left: auto;
+  color: #9aa3c0;
+  transition: transform 0.2s;
+}
+
+details.chart-collapse[open] > summary::after {
+  transform: rotate(180deg);
+}
+
+details.chart-collapse > summary:hover {
+  background: rgba(108, 140, 255, 0.08);
+}
+
+details.chart-collapse > *:not(summary) {
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+details.chart-collapse > *:last-child {
+  margin-bottom: 16px;
+}
+
+/* ---------- Chip de perfil en el header ---------- */
+.header-profile {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 4px 14px;
+  background: rgba(26, 31, 53, 0.7);
+  border: 1px solid var(--card-border);
+  border-radius: 999px;
+  color: var(--text);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.header-profile:hover {
+  background: rgba(108, 140, 255, 0.15);
+  border-color: #6c8cff;
+}
