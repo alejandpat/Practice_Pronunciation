@@ -103,16 +103,6 @@ Aplicación web local para practicar tu **inglés**: evalúa tu **pronunciación
 
 > **Nota:** los gráficos de progreso usan [Chart.js](https://www.chartjs.org/) cargado desde CDN (requiere internet). El resto de la app funciona sin conexión excepto las llamadas a Gemini.
 
-## 🌐 Publicar con GitHub Pages
-
-Al ser una app 100% estática (sin backend), puedes publicarla gratis:
-
-1. Sube el repo a GitHub (ver pasos de arriba o los clásicos `git init` → `push`).
-2. En el repo: **Settings → Pages → Source: "Deploy from a branch"** → rama `main`, carpeta `/ (root)` → **Save**.
-3. En un minuto estará en `https://TU_USUARIO.github.io/evaluate-pronunciation/`.
-
-Cada navegador mantiene sus propios perfiles y datos (localStorage), así que cada quien necesita configurar su clave de API la primera vez.
-
 ## ⚠️ Notas
 
 - El navegador pedirá **permiso de micrófono** la primera vez; acéptalo.

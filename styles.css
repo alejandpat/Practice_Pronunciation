@@ -1435,3 +1435,58 @@ details.chart-collapse > *:last-child {
   background: rgba(108, 140, 255, 0.15);
   border-color: #6c8cff;
 }
+
+/* ---------- Página de inicio (About) ---------- */
+.home-hero {
+  text-align: center;
+  padding: 30px 20px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(16, 185, 129, 0.1));
+}
+
+.home-hero h2 {
+  font-size: 1.6em;
+  margin-bottom: 8px;
+}
+
+.home-steps {
+  margin: 12px 0 18px;
+  padding-left: 22px;
+  line-height: 1.9;
+}
+
+.home-steps .link-btn {
+  background: none;
+  border: none;
+  color: var(--accent, #818cf8);
+  cursor: pointer;
+  font-size: inherit;
+  font-weight: 600;
+  padding: 0;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.home-features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 14px;
+  margin-top: 12px;
+}
+
+.home-feature {
+  border: 1px solid var(--card-border, rgba(255,255,255,0.08));
+  border-radius: 10px;
+  padding: 14px 16px;
+  background: rgba(26, 31, 53, 0.4);
+}
+
+.home-feature h3 {
+  margin: 0 0 6px;
+  font-size: 1.05em;
+}
+
+.home-feature p {
+  margin: 0;
+  font-size: 0.92em;
+  color: #b6bdd6;
+}

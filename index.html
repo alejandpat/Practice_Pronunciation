@@ -25,10 +25,11 @@
   <main>
     <!-- Pestañas -->
     <nav class="tabs">
+      <button class="tab active" data-tab="home">🏠 Inicio</button>
       <details class="tab-dropdown" id="dropdown-activities">
         <summary>🎯 Actividades</summary>
         <div class="dropdown-menu">
-          <button class="tab active" data-tab="practice">📝 Práctica</button>
+          <button class="tab" data-tab="practice">📝 Práctica</button>
           <button class="tab" data-tab="conversation">💬 Conversación</button>
           <button class="tab" data-tab="translate">🌍 Traducción</button>
           <button class="tab" data-tab="dictionary">📖 Diccionario</button>
@@ -43,8 +44,64 @@
       <button class="tab" data-tab="settings">⚙️ Configuración</button>
     </nav>
 
+    <!-- ============ TAB: INICIO (ABOUT) ============ -->
+    <div id="tab-home" class="tab-content">
+      <section class="card home-hero">
+        <h2>👋 ¡Hola! Bienvenido a tu Evaluador de Pronunciación</h2>
+        <p class="subtitle">Tu compañero para practicar inglés a tu ritmo: pronunciación, conversación, gramática y vocabulario — todo en tu navegador.</p>
+      </section>
+
+      <section class="card">
+        <h2>🚀 ¿Cómo empezar?</h2>
+        <ol class="home-steps">
+          <li><strong>Configura tu clave de API</strong> — Ve a <button class="link-btn" data-goto="settings">⚙️ Configuración</button> y pega tu clave gratuita de Google AI Studio. Tarda 30 segundos.</li>
+          <li><strong>Elige tu nivel</strong> — Principiante, Intermedio o Avanzado. Todo el contenido se adapta a tu nivel.</li>
+          <li><strong>Practica</strong> — Elige una actividad y empieza a hablar. La IA te corrige y evalúa tu progreso.</li>
+        </ol>
+        <div class="input-row">
+          <button class="btn primary" data-goto="practice">📝 Ir a Práctica</button>
+          <button class="btn secondary" data-goto="conversation">💬 Probar Conversación</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>✨ ¿Qué puedo hacer aquí?</h2>
+        <div class="home-features">
+          <div class="home-feature">
+            <h3>🎤 Pronunciación</h3>
+            <p>Lee frases en voz alta y recibe una puntuación al instante, palabra por palabra, con correcciones de la IA.</p>
+          </div>
+          <div class="home-feature">
+            <h3>💬 Conversación</h3>
+            <p>Charla libre por voz o chat con escenarios de rol (entrevista, restaurante, médico…) y modo examen.</p>
+          </div>
+          <div class="home-feature">
+            <h3>📐 Gramática y 🧠 Vocabulario</h3>
+            <p>Ejercicios generados por IA según tus deficiencias o por temas concretos, con explicación de cada respuesta.</p>
+          </div>
+          <div class="home-feature">
+            <h3>🌍 Traducción y 📖 Diccionario</h3>
+            <p>Traduce textos y busca palabras con definición, ejemplos, sinónimos y pronunciación.</p>
+          </div>
+          <div class="home-feature">
+            <h3>🔤 Fonemas y 🃏 Repaso</h3>
+            <p>Entrena los sonidos más difíciles para hispanohablantes y repasa con tarjetas de repetición espaciada.</p>
+          </div>
+          <div class="home-feature">
+            <h3>📈 Progreso y 👥 Perfiles</h3>
+            <p>Gráficos de evolución, rachas diarias, perfiles para toda la familia y respaldo de datos en JSON.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>🔒 Privacidad</h2>
+        <p class="hint">Todo se guarda en <strong>tu navegador</strong> (localStorage): historiales, progreso y perfiles. Tu voz se procesa en el navegador y el texto se analiza con Gemini. No hay servidores: tus datos nunca salen de tu dispositivo salvo las peticiones a la IA.</p>
+      </section>
+    </div>
+
     <!-- ============ TAB: PRÁCTICA ============ -->
-    <div id="tab-practice" class="tab-content">
+    <div id="tab-practice" class="tab-content hidden">
       <!-- Sección de práctica -->
       <section id="practice-section" class="card">
         <h2>📝 Texto objetivo</h2>
@@ -603,6 +660,11 @@
           <option value="es" selected>Español</option>
           <option value="en">English</option>
         </select>
+        <label for="ui-lang">Idioma de la interfaz (UI language):</label>
+        <select id="ui-lang">
+          <option value="es" selected>Español</option>
+          <option value="en">English</option>
+        </select>
         <label for="difficulty-level">Nivel de dificultad (MCER):</label>
         <select id="difficulty-level">
           <option value="beginner" selected>🟢 Principiante — A1 a A2</option>
@@ -695,6 +757,7 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <script src="app.js?v=3"></script>
+  <script src="i18n.js?v=1"></script>
+  <script src="app.js?v=4"></script>
 </body>
 </html>
