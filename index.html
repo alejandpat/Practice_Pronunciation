@@ -2,11 +2,11 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Evaluador de Pronunciación</title>
   <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
   <link rel="apple-touch-icon" href="assets/favicon.ico">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=7">
 </head>
 <body>
   <header>
@@ -278,7 +278,7 @@
       <div id="conv-dock" class="conv-dock">
         <button id="conv-mic-btn-dock" class="btn primary big">🎤 Empezar a hablar</button>
         <div id="conv-chat-row" class="conv-chat-row hidden">
-          <input type="text" id="conv-chat-input" placeholder="Escribe tu mensaje en inglés…" autocomplete="off">
+          <textarea id="conv-chat-input" rows="1" placeholder="Escribe tu mensaje en inglés…" autocomplete="off"></textarea>
           <button id="conv-chat-send" class="btn primary">➤</button>
         </div>
         <button id="conv-eval-btn" class="btn accent" title="Evalúa la pronunciación de tu última intervención con IA">🤖 Evaluar pronunciación</button>
@@ -758,6 +758,35 @@
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="i18n.js?v=1"></script>
-  <script src="app.js?v=4"></script>
+  <script src="js/00-profiles.js?v=1"></script>
+  <script src="js/01-dom.js?v=1"></script>
+  <script src="js/02-pronunciation.js?v=1"></script>
+  <script src="js/03-tts.js?v=1"></script>
+  <script src="js/04-conversation.js?v=1"></script>
+  <script src="js/05-translation.js?v=1"></script>
+  <script src="js/06-history.js?v=1"></script>
+  <script src="js/07-progress.js?v=1"></script>
+  <script src="js/07b-exercise-charts.js?v=1"></script>
+  <script src="js/07c-dictionary.js?v=1"></script>
+  <script src="js/07d-word-popup.js?v=1"></script>
+  <script src="js/08-phonemes.js?v=1"></script>
+  <script src="js/09-srs.js?v=1"></script>
+  <script src="js/09b-srs-top.js?v=1"></script>
+  <script src="js/10-shadowing.js?v=1"></script>
+  <script src="js/10b-roles-exam.js?v=1"></script>
+  <script src="js/11-streaks.js?v=1"></script>
+  <script src="js/11b-history-init.js?v=1"></script>
+  <script src="js/11c-conv-history.js?v=1"></script>
+  <script src="js/11d-conv-nav.js?v=1"></script>
+  <script src="js/12-grammar.js?v=1"></script>
+  <script src="js/13-vocabulary.js?v=1"></script>
+  <script src="js/14-phoneme-history.js?v=1"></script>
+  <script src="js/15-exercise-results.js?v=1"></script>
+  <script src="js/16-backup.js?v=1"></script>
+  <script src="js/17-fs-sync.js?v=1"></script>
+  <script src="js/18-profiles-ui.js?v=1"></script>
+  <script src="js/19-dynamic-i18n.js?v=1"></script>
+  <script src="js/20-ui-language.js?v=1"></script>
+  <script src="js/21-about.js?v=1"></script>
 </body>
 </html>

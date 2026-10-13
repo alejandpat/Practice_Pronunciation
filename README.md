@@ -98,7 +98,7 @@ Aplicación web local para practicar tu **inglés**: evalúa tu **pronunciación
 | ------------- | -------------------------------------------------- |
 | `index.html`  | Estructura de la interfaz (pestañas: Práctica, Conversación, Traducción, Diccionario, Fonemas, Repaso, Gramática, Vocabulario, Progreso, Historial, Configuración) |
 | `styles.css`  | Estilos (tema oscuro)                              |
-| `app.js`      | Reconocimiento de voz, evaluación local, API Gemini, SRS, perfiles, historial y gráficos |
+| `js/`         | Lógica de la aplicación en módulos: reconocimiento de voz, evaluación local, API Gemini, SRS, perfiles, historial y gráficos |
 | `assets/`     | Icono de la aplicación (favicon)                   |
 
 > **Nota:** los gráficos de progreso usan [Chart.js](https://www.chartjs.org/) cargado desde CDN (requiere internet). El resto de la app funciona sin conexión excepto las llamadas a Gemini.
@@ -108,5 +108,5 @@ Aplicación web local para practicar tu **inglés**: evalúa tu **pronunciación
 - El navegador pedirá **permiso de micrófono** la primera vez; acéptalo.
 - El reconocimiento de voz de Chrome/Edge procesa el audio en servidores del navegador (no en esta app).
 - Si usas `file://` y el micrófono no funciona, usa la Opción B (`npx serve .`).
-- Modelo principal: `gemini-3.8-flash`; respaldo automático con `gemini-3.5-flash-lite` si el principal está saturado. Puedes cambiarlos en `app.js` (constantes `GEMINI_PRIMARY_MODEL` y `GEMINI_FALLBACK_MODEL`).
+- Modelo principal: `gemini-3.8-flash`; respaldo automático con `gemini-3.5-flash-lite` si el principal está saturado. Puedes cambiarlos en `js/02-pronunciation.js` (constantes `GEMINI_PRIMARY_MODEL` y `GEMINI_FALLBACK_MODEL`).
 - **Ollama como respaldo sin internet**: instala [Ollama](https://ollama.com), descarga un modelo (`ollama pull llama3.2`) y configura URL y modelo en la sección de Configuración de la app. Nota: si abres la app con `file://`, el navegador puede bloquear la conexión a `localhost` por CORS; en ese caso usa `npx serve .` y abre la app desde `http://localhost`. También puede que necesites permitir el origen con la variable de entorno `OLLAMA_ORIGINS=*` al iniciar Ollama.
