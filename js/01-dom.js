@@ -123,6 +123,27 @@ function getApiKey() {
   return apiKeyInput.value.trim();
 }
 
+// ---------- Clave de API de YouTube (opcional) ----------
+const youtubeApiKeyInput = document.getElementById('youtube-api-key');
+const saveYoutubeKeyBtn = document.getElementById('save-youtube-key-btn');
+
+const savedYoutubeKey = localStorage.getItem('youtube_api_key');
+if (savedYoutubeKey) {
+  youtubeApiKeyInput.value = savedYoutubeKey;
+}
+
+saveYoutubeKeyBtn.addEventListener('click', () => {
+  localStorage.setItem('youtube_api_key', youtubeApiKeyInput.value.trim());
+  setStatus('Clave de YouTube guardada ✔', 'listening');
+  setTimeout(() => setStatus(''), 2000);
+});
+
+// Clave para la API de YouTube: la específica de YouTube o, si no hay,
+// la de Gemini (útil si ambas APIs están habilitadas en el mismo proyecto).
+function getYouTubeApiKey() {
+  return localStorage.getItem('youtube_api_key') || getApiKey();
+}
+
 // ---------- Auto-ajuste del textarea objetivo ----------
 function autoResizeTargetText() {
   targetText.style.height = 'auto';

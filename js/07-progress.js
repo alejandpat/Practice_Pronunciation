@@ -3,11 +3,12 @@
 // ============================================================
 
 let progressChart = null;
-const skillCharts = { pronunciation: null, grammar: null, vocabulary: null };
+const skillCharts = { pronunciation: null, grammar: null, vocabulary: null, listening: null };
 const SKILL_CHART_DEFS = [
   { key: 'pronunciation', canvasId: 'skill-chart-pronunciation', label: 'Pronunciación', color: '#6c8cff', rgba: 'rgba(108, 140, 255, 0.15)' },
   { key: 'grammar', canvasId: 'skill-chart-grammar', label: 'Gramática', color: '#4caf7d', rgba: 'rgba(76, 175, 125, 0.15)' },
-  { key: 'vocabulary', canvasId: 'skill-chart-vocabulary', label: 'Vocabulario', color: '#b388ff', rgba: 'rgba(179, 136, 255, 0.15)' }
+  { key: 'vocabulary', canvasId: 'skill-chart-vocabulary', label: 'Vocabulario', color: '#b388ff', rgba: 'rgba(179, 136, 255, 0.15)' },
+  { key: 'listening', canvasId: 'skill-chart-listening', label: 'Comprensión auditiva', color: '#ffb74d', rgba: 'rgba(255, 184, 77, 0.15)' }
 ];
 
 function renderProgress() {
@@ -43,6 +44,7 @@ function renderProgress() {
   const pronData = practiceSessions.map((s) => s.scores.pronunciation ?? null);
   const gramData = practiceSessions.map((s) => s.scores.grammar ?? null);
   const vocabData = practiceSessions.map((s) => s.scores.vocabulary ?? null);
+  const listenData = practiceSessions.map((s) => s.scores.listening ?? null);
 
   // Resumen: promedio de las primeras 3 vs últimas 3 sesiones
   const avg = (arr) => {
@@ -56,7 +58,8 @@ function renderProgress() {
   const stats = [
     { label: '🔊 Pronunciación', first: avg(firstN.map((s) => s.scores.pronunciation)), last: avg(lastN.map((s) => s.scores.pronunciation)) },
     { label: '📚 Gramática', first: avg(firstN.map((s) => s.scores.grammar)), last: avg(lastN.map((s) => s.scores.grammar)) },
-    { label: '💡 Vocabulario', first: avg(firstN.map((s) => s.scores.vocabulary)), last: avg(lastN.map((s) => s.scores.vocabulary)) }
+    { label: '💡 Vocabulario', first: avg(firstN.map((s) => s.scores.vocabulary)), last: avg(lastN.map((s) => s.scores.vocabulary)) },
+    { label: '🎧 Comprensión auditiva', first: avg(firstN.map((s) => s.scores.listening)), last: avg(lastN.map((s) => s.scores.listening)) }
   ];
 
   progressSummary.innerHTML = '';
@@ -114,6 +117,14 @@ function renderProgress() {
           data: vocabData,
           borderColor: '#b388ff',
           backgroundColor: 'rgba(179, 136, 255, 0.15)',
+          tension: 0.3,
+          fill: true
+        },
+        {
+          label: 'Comprensión auditiva',
+          data: listenData,
+          borderColor: '#ffb74d',
+          backgroundColor: 'rgba(255, 184, 77, 0.15)',
           tension: 0.3,
           fill: true
         }

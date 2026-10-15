@@ -227,9 +227,11 @@ function renderModelBadge(container) {
 
 // Llamada centralizada a Gemini con reintentos y modelo de respaldo.
 // Si Gemini no está disponible (sin internet, saturado, etc.), intenta con Ollama local.
+// options.youtubeUrl: URL de YouTube que se adjunta como file_data para que
+// el modelo vea/escuche el video de verdad (no solo el texto del enlace).
 // Devuelve el texto de respuesta y avisa (toast) si usó un respaldo.
 async function callGemini(prompt, apiKey, options = {}) {
-  const { temperature = 0.2, jsonMode = true } = options;
+  const { temperature = 0.2, jsonMode = true, youtubeUrl = '' } = options;
 
   // Modo "Ollama directo": saltarse Gemini por completo
   if (ollamaDirectCheckbox.checked) {
@@ -253,7 +255,14 @@ async function callGemini(prompt, apiKey, options = {}) {
           'x-goog-api-key': apiKey // la key va en el header, no en la URL
         },
         body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
+          contents: [{
+            parts: [
+              { text: prompt },
+              // Adjuntar el video de YouTube para que el modelo lo procese
+              // de verdad (transcripción, idioma, contenido...).
+              ...(youtubeUrl ? [{ file_data: { file_uri: youtubeUrl } }] : [])
+            ]
+          }],
           generationConfig: {
             temperature,
             ...(jsonMode ? { responseMimeType: 'application/json' } : {})

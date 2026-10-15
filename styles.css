@@ -1,4 +1,5 @@
 :root {
+  color-scheme: dark; /* el navegador pinta inputs, carets y autofill con esquema oscuro */
   --bg: #0f1220;
   --card: #1a1f35;
   --card-border: #2a3050;
@@ -9,6 +10,10 @@
   --good: #4caf7d;
   --warn: #ffb74d;
   --bad: #ef5350;
+  /* Superficies secundarias (chips, superficies internas) */
+  --surface-2: #232946;
+  --accent-soft: rgba(108, 140, 255, 0.16);
+  --border: #2a3050;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -51,6 +56,16 @@ main {
 
 .card h2 { font-size: 1.1rem; margin-bottom: 12px; }
 
+/* Nombre del juego en el panel inferior: grande y destacado */
+#listening-exercise-title {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--primary, #6c8cff);
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--primary, #6c8cff);
+  margin-bottom: 14px;
+}
+
 .card h3 {
   margin: 20px 0 10px;
   font-size: 0.95rem;
@@ -71,10 +86,26 @@ input[type="password"], textarea, select {
   border: 1px solid var(--card-border);
   border-radius: 8px;
   color: var(--text);
+  -webkit-text-fill-color: var(--text); /* fuerza el color del texto en iOS/Android */
+  caret-color: var(--text);
   padding: 10px 12px;
   font-size: 1rem;
   font-family: inherit;
   resize: vertical;
+}
+
+/* Inputs de texto sueltos (chat, diccionario, perfil, voz, ollama) */
+input[type="text"] {
+  width: 100%;
+  background: #12162a;
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  color: var(--text);
+  -webkit-text-fill-color: var(--text);
+  caret-color: var(--text);
+  padding: 10px 12px;
+  font-size: 1rem;
+  font-family: inherit;
 }
 
 /* Textarea objetivo: crece con el contenido (auto-ajuste desde app.js) */
@@ -979,8 +1010,6 @@ footer {
 
 /* Móviles pequeños */
 @media (max-width: 480px) {
-  .tabs { flex-wrap: wrap; }
-  .tab { padding: 8px 10px; font-size: 0.85rem; }
   .controls .btn { min-width: 100%; }
   .score-row { flex-direction: column; align-items: center; }
 }
@@ -1012,20 +1041,34 @@ footer {
   flex: 1;
   gap: 8px;
   min-width: 0;
+  align-items: flex-end; /* el botón ➤ queda pegado a la base cuando el texto crece */
 }
 
-.conv-chat-row input {
+/* Área de texto estilo WhatsApp: crece con el contenido (auto-resize en app.js) */
+.conv-chat-row textarea {
   flex: 1;
   min-width: 0;
-  padding: 10px 14px;
-  border-radius: 10px;
+  padding: 12px 14px;
+  border-radius: 18px;
   border: 1px solid var(--card-border);
-  background: rgba(255, 255, 255, 0.06);
+  background: #12162a;
   color: var(--text);
+  -webkit-text-fill-color: var(--text); /* fuerza el color del texto en iOS/Android */
+  caret-color: var(--text);
   font-size: 1rem;
+  font-family: inherit;
+  line-height: 1.4;
+  min-height: 46px;
+  max-height: 180px; /* ~6 líneas; después hace scroll interno */
+  height: auto;
+  field-sizing: content; /* crece con el texto (nativo en Chrome 123+) */
+  resize: none;
+  overflow-y: auto;
+  appearance: none;
+  -webkit-appearance: none;
 }
 
-.conv-chat-row input:focus {
+.conv-chat-row textarea:focus {
   outline: none;
   border-color: var(--accent);
 }
@@ -1489,4 +1532,867 @@ details.chart-collapse > *:last-child {
   margin: 0;
   font-size: 0.92em;
   color: #b6bdd6;
+}
+
+/* ============================================================
+   ADAPTACIÓN MÓVIL (celulares)
+   Mejoras para pantallas pequeñas: navegación deslizable,
+   header compacto, botones táctiles grandes, toasts a ancho
+   completo y respeto de las áreas seguras (notch / barra home).
+   ============================================================ */
+
+/* ---------- Tablets y móviles (≤ 720px) ---------- */
+@media (max-width: 720px) {
+  /* Header más compacto */
+  header { padding-top: 12px; }
+  header h1 { font-size: 1.25rem; }
+  .subtitle { font-size: 0.85rem; padding: 0 8px; }
+
+  /* Racha y perfil más discretos */
+  .header-streak { gap: 6px; padding: 5px 12px; font-size: 0.85rem; }
+  .header-profile { padding: 5px 12px; font-size: 0.8rem; }
+
+  /* Navegación: fila deslizable horizontal en vez de apilarse en varias líneas */
+  .tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    gap: 6px;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab, .tab-dropdown summary {
+    padding: 10px 14px;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  /* El menú desplegable de Actividades no cabe dentro del contenedor
+     deslizable (overflow-x lo recorta): en móvil se muestra como panel
+     fijo, centrado y a ancho casi completo, por encima de todo. */
+  .tab-dropdown { position: static; }
+  .dropdown-menu {
+    position: fixed;
+    top: auto;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(320px, calc(100vw - 24px));
+    max-height: 70vh;
+    overflow-y: auto;
+    border-radius: 12px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+  }
+  .dropdown-menu .tab { padding: 14px 16px; font-size: 1rem; }
+
+  /* Botones táctiles: mínimo 44px de alto (recomendación de usabilidad móvil) */
+  .btn {
+    padding: 12px 16px;
+    font-size: 1rem;
+    min-height: 44px;
+  }
+  .controls .btn { min-width: 140px; }
+
+  /* Inputs y selects cómodos al tacto */
+  input[type="password"], textarea, select { font-size: 16px; } /* evita zoom automático en iOS */
+
+  /* Tarjetas más compactas */
+  .card { padding: 16px 14px; }
+  .card h2 { font-size: 1.05rem; }
+
+  /* Toasts a ancho completo arriba (no tapan el dock de grabar) */
+  #toast-container {
+    left: 12px;
+    right: 12px;
+    bottom: auto;
+    top: 12px;
+    max-width: none;
+  }
+
+  /* Botones flotantes de conversación: no chocan con el dock */
+  .conv-nav-buttons { bottom: 110px; right: 12px; }
+
+  /* Dock de conversación: los botones y el status fluyen a varias filas
+     en vez de apretarse en una sola línea */
+  .conv-dock {
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 10px 12px;
+  }
+  .conv-dock .btn { flex: 1 1 auto; min-width: 150px; }
+  .conv-dock .hint { flex: 1 1 100%; }
+  .conv-chat-row { flex: 1 1 100%; }
+
+  /* El botón ➤ de enviar: compacto, sin robarle ancho al textarea */
+  .conv-dock .conv-chat-row .btn {
+    flex: 0 0 auto;
+    min-width: 48px;
+    width: 48px;
+    padding: 10px 0;
+  }
+
+  /* Caja de texto de conversación: más alta y legible en móvil */
+  .conv-chat-row textarea {
+    min-height: 48px;
+    font-size: 16px;
+    padding: 12px 14px;
+  }
+
+  /* Popup de palabra: siempre dentro de la pantalla */
+  .word-popup { max-width: calc(100vw - 20px); }
+}
+
+/* ---------- Móviles pequeños (≤ 480px) ---------- */
+@media (max-width: 480px) {
+  header h1 { font-size: 1.1rem; }
+  .header-streak { gap: 8px; font-size: 0.8rem; padding: 5px 10px; }
+  .header-streak .hs-sep { display: none; }
+
+  .tab, .tab-dropdown summary { padding: 9px 12px; font-size: 0.85rem; }
+
+  .controls .btn { min-width: 100%; }
+  .input-row { flex-direction: column; }
+  .input-row .btn { width: 100%; }
+
+  /* Dock de conversación: todo apilado y a ancho completo */
+  .conv-dock { flex-direction: column; align-items: stretch; }
+  .conv-dock .btn { min-width: 0; width: 100%; }
+  .conv-chat-row { width: 100%; }
+  .conv-chat-row textarea { min-width: 0; min-height: 52px; font-size: 16px; }
+  .conv-dock .hint { text-align: center; }
+
+  /* Opciones de ejercicios: botones grandes apilados, fáciles de tocar */
+  .exercise-options { flex-direction: column; }
+  .exercise-option { width: 100%; padding: 12px 14px; font-size: 1rem; }
+
+  /* Resultados de práctica en una sola columna */
+  .score-row { flex-direction: column; align-items: stretch; }
+
+  /* Diccionario y grids a una columna */
+  .dict-grid { grid-template-columns: 1fr; }
+
+  /* Home: pasos y features más compactos */
+  .home-hero { padding: 22px 14px; }
+  .home-hero h2 { font-size: 1.3em; }
+  .home-features { grid-template-columns: 1fr; }
+}
+
+/* ---------- Móviles muy pequeños (≤ 360px) ---------- */
+@media (max-width: 360px) {
+  header h1 { font-size: 1rem; }
+  .tab, .tab-dropdown summary { padding: 8px 10px; font-size: 0.8rem; }
+  .btn { padding: 10px 12px; font-size: 0.9rem; }
+}
+
+/* ---------- Áreas seguras (iPhone con notch / barra inferior) ---------- */
+@supports (padding: env(safe-area-inset-bottom)) {
+  .conv-dock {
+    padding-bottom: calc(12px + env(safe-area-inset-bottom));
+    margin-bottom: 4px;
+  }
+  #toast-container {
+    padding-top: env(safe-area-inset-top);
+  }
+  .conv-nav-buttons {
+    bottom: calc(110px + env(safe-area-inset-bottom));
+  }
+}
+
+/* ---------- Mejoras táctiles generales ---------- */
+@media (hover: none) and (pointer: coarse) {
+  /* Eliminar el retraso/hover fantasma en táctil */
+  .tab, .btn, .header-streak, .header-profile, .clickable-word {
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn:active { transform: scale(0.97); }
+  .tab:active { background: rgba(108, 140, 255, 0.15); }
+
+  /* Evitar zoom accidental con doble toque en controles */
+  button, select, input, textarea, summary { touch-action: manipulation; }
+}
+
+/* ============================================================
+   LISTENING (js/22-listening.js)
+   ============================================================ */
+#listening-player-wrap {
+  margin: 1rem 0;
+  aspect-ratio: 16 / 9;
+  max-width: 720px;
+}
+
+#listening-player {
+  width: 100%;
+  height: 100%;
+  border: none;
+  border-radius: 12px;
+  background: #000;
+}
+
+.listening-word-bank {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.75rem 0;
+  padding: 0.75rem;
+  border: 1px dashed var(--border, #444);
+  border-radius: 8px;
+}
+
+.word-bank-chip {
+  padding: 0.25rem 0.6rem;
+  border-radius: 12px;
+  background: rgba(108, 140, 255, 0.15);
+  font-size: 0.9rem;
+  cursor: default;
+}
+
+.listening-gaps {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin: 1rem 0;
+}
+
+.listening-gap-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.listening-gap-context {
+  color: var(--text-muted, #aaa);
+  font-size: 0.95rem;
+}
+
+.listening-gap-input {
+  width: 140px;
+  padding: 0.35rem 0.5rem;
+  border: 1px solid var(--border, #444);
+  border-radius: 6px;
+  background: var(--bg-input, #1a1a2e);
+  color: inherit;
+}
+
+.listening-gap-input.gap-ok { border-color: var(--good); }
+.listening-gap-input.gap-close { border-color: var(--warn); }
+.listening-gap-input.gap-miss { border-color: var(--bad); }
+.listening-gap-input.gap-reveal { border-style: dashed; color: var(--warn); }
+
+.listening-result-head {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+/* ============================================================
+   CONTACTO / FEEDBACK (js/23-feedback.js)
+   ============================================================ */
+.feedback-preview {
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--border, #333);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.25);
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 0.85rem;
+  max-height: 400px;
+  overflow: auto;
+}
+
+/* Hueco activo en modo sincronizado */
+.listening-gap-input.gap-active {
+  border-color: var(--warn);
+  box-shadow: 0 0 0 2px rgba(255, 193, 7, 0.35);
+  animation: gap-pulse 1s ease-in-out infinite;
+}
+
+@keyframes gap-pulse {
+  0%, 100% { box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.35); }
+  50% { box-shadow: 0 0 0 0.45rem rgba(255, 193, 7, 0.15); }
+}
+
+/* ============================================================
+   BÚSQUEDA EMBEBIDA DE YOUTUBE (js/22-listening.js)
+   ============================================================ */
+.listening-search-results {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+
+/* La clase .hidden debe ganar al display:grid de arriba */
+.listening-search-results.hidden {
+  display: none;
+}
+
+.search-result-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.6rem;
+  border: 1px solid var(--border, #333);
+  border-radius: 10px;
+  background: var(--bg-card, #16162a);
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.search-result-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--primary, #6c8cff);
+}
+
+/* Barra de canción cargada (reemplaza al pool tras elegir) */
+.listening-current-song {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.6rem 0.9rem;
+  margin: 1rem 0;
+  border: 1px solid var(--primary, #6c8cff);
+  border-radius: 10px;
+  background: var(--bg-card, #16162a);
+}
+
+.listening-current-song.hidden {
+  display: none;
+}
+
+.listening-current-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.search-result-card img {
+  width: 100%;
+  border-radius: 8px;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+
+.search-result-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+}
+
+.search-result-info strong {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.3;
+}
+
+.search-channel {
+  color: var(--text-muted, #999);
+  font-size: 0.8rem;
+}
+
+/* ============================================================
+   PANEL DE VIDEO DEDICADO (js/22-listening.js)
+   ============================================================ */
+.listening-player-frame {
+  aspect-ratio: 16 / 9;
+  max-width: 720px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #000;
+}
+
+.listening-player-frame iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+
+.listening-player-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.6rem;
+  max-width: 720px;
+}
+
+.player-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--text, #eee);
+  border-radius: 8px;
+  padding: 0.35rem 0.7rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.player-btn:hover { background: rgba(108, 140, 255, 0.25); }
+
+.listening-time {
+  font-variant-numeric: tabular-nums;
+  font-size: 0.85rem;
+  opacity: 0.8;
+  min-width: 90px;
+  text-align: center;
+}
+
+.listening-speed {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text, #e8eaf6);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 0.3rem 0.4rem;
+  font-size: 0.85rem;
+}
+
+/* Opciones de los desplegables: legibles en tema oscuro */
+.listening-speed option,
+.listening-gap-input option,
+.lp-wheel-input option {
+  background: #1a1f35;
+  color: #e8eaf6;
+}
+
+/* ============================================================
+   LISTENING — selector de modo (buscar / URL)
+   ============================================================ */
+.listening-mode-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin: 1rem 0 0.8rem;
+}
+
+.listening-mode-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: inherit;
+  border-radius: 10px;
+  padding: 0.45rem 1rem;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.listening-mode-btn:hover { background: rgba(108, 140, 255, 0.2); }
+
+.listening-mode-btn.active {
+  background: rgba(108, 140, 255, 0.3);
+  border-color: rgba(108, 140, 255, 0.6);
+  font-weight: 600;
+}
+
+.listening-mode-panel { margin-bottom: 1rem; }
+
+/* ============================================================
+   RUEDA DE FRASES (carrusel del ejercicio de huecos)
+   ============================================================ */
+.lp-wheel {
+  margin-top: 10px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-2, rgba(0, 0, 0, 0.03));
+}
+.lp-wheel-head {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.lp-wheel-counter {
+  font-size: 0.9rem;
+  color: var(--muted, #888);
+  min-width: 60px;
+  text-align: center;
+}
+.lp-wheel-phrase {
+  font-size: 1.05rem;
+  line-height: 1.6;
+  text-align: center;
+  min-height: 3.2em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.lp-wheel-phrase .lp-wheel-input {
+  width: 130px;
+  text-align: center;
+  font-weight: 600;
+}
+.lp-wheel-phrase .lp-wheel-input.gap-ok { border-color: var(--good); }
+.lp-wheel-phrase .lp-wheel-input.gap-close { border-color: var(--warn); }
+.lp-wheel-phrase .lp-wheel-input.gap-miss { border-color: var(--bad); }
+.lp-wheel-phrase .lp-wheel-input.gap-active { border-color: var(--accent, #4a90d9); box-shadow: 0 0 0 2px rgba(74, 144, 217, 0.25); }
+.lp-wheel-phrase .lp-wheel-input.gap-reveal { border-style: dashed; color: var(--warn); }
+
+/* ============================================================
+   RUEDA — selector de modo y banco de palabras integrado
+   ============================================================ */
+.lp-wheel-mode {
+  margin-left: 8px;
+}
+.lp-wheel-phrase select.lp-wheel-input {
+  width: 160px;
+  text-align: center;
+  font-weight: 600;
+}
+.lp-wheel .listening-word-bank {
+  margin-top: 10px;
+  justify-content: center;
+}
+
+/* ============================================================
+   JUEGOS DE LISTENING (selector + paneles)
+   ============================================================ */
+.listening-game-picker {
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border, #ddd);
+}
+.listening-game-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+.listening-game-btn {
+  padding: 6px 12px;
+  border: 1px solid var(--border, #ccc);
+  border-radius: 18px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+.listening-game-btn:hover { border-color: var(--primary, #6c5ce7); }
+.listening-game-btn.active {
+  background: var(--primary, #6c5ce7);
+  color: #fff;
+  border-color: var(--primary, #6c5ce7);
+}
+.listening-game-panel { margin-top: 12px; }
+.listening-game-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+/* Ordena la frase */
+.scramble-slots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-height: 44px;
+  padding: 8px;
+  border: 2px dashed var(--border, #bbb);
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+.scramble-slots .slot-empty { color: #999; font-style: italic; }
+.scramble-bank {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.scramble-word {
+  padding: 6px 12px;
+  border: 1px solid var(--border, #ccc);
+  border-radius: 16px;
+  background: var(--surface-2, #232946);
+  color: var(--text, #e8eaf6);
+  cursor: pointer;
+  user-select: none;
+}
+.scramble-word:hover { border-color: var(--primary, #6c5ce7); }
+.scramble-word.used { opacity: 0.35; pointer-events: none; }
+.scramble-slot-word {
+  padding: 4px 10px;
+  border: 1px solid var(--border, #ccc);
+  border-radius: 14px;
+  background: var(--accent-soft, #eee9ff);
+  color: var(--text, #e8eaf6);
+  cursor: pointer;
+}
+.scramble-slot.ok { border-color: #2ecc71; }
+.scramble-slot.miss { border-color: #e74c3c; }
+
+/* Pares mínimos */
+.minimal-question {
+  font-size: 1.05rem;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--surface-2, #232946);
+  color: var(--text, #e8eaf6);
+  margin-bottom: 10px;
+}
+.minimal-options { display: flex; flex-wrap: wrap; gap: 8px; }
+.minimal-option {
+  padding: 8px 16px;
+  border: 1px solid var(--border, #ccc);
+  border-radius: 8px;
+  background: var(--surface-2, #232946);
+  color: var(--text, #e8eaf6);
+  cursor: pointer;
+  font-size: 1rem;
+}
+.minimal-option:hover { border-color: var(--primary, #6c5ce7); }
+.minimal-option.ok { background: #2ecc71; color: #fff; border-color: #2ecc71; }
+.minimal-option.miss { background: #e74c3c; color: #fff; border-color: #e74c3c; }
+
+/* Dictado exprés */
+.sprint-timer {
+  font-weight: 700;
+  font-size: 1.05rem;
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: var(--accent-soft, #eee9ff);
+  color: var(--text, #e8eaf6);
+}
+.sprint-timer.urgent { color: #e74c3c; animation: pulse 0.6s infinite alternate; }
+.sprint-score { font-weight: 600; margin-left: auto; }
+@keyframes pulse { 50% { opacity: 0.5; } }
+
+/* Karaoke */
+.karaoke-line {
+  font-size: 1.15rem;
+  line-height: 2;
+  padding: 12px;
+  border-radius: 8px;
+  background: var(--surface-2, #232946);
+  color: var(--text, #e8eaf6);
+}
+.karaoke-word { margin-right: 8px; }
+.karaoke-word.hidden-word input {
+  width: 90px;
+  border: none;
+  border-bottom: 2px solid var(--primary, #6c5ce7);
+  background: transparent;
+  color: inherit;
+  text-align: center;
+}
+.karaoke-word.gap-ok { color: #2ecc71; }
+.karaoke-word.gap-miss { color: #e74c3c; }
+
+/* Verdadero/Falso */
+.quiz-list { display: flex; flex-direction: column; gap: 10px; }
+.quiz-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--border, #ddd);
+  border-radius: 8px;
+}
+.quiz-item .quiz-statement { flex: 1; }
+.quiz-item .quiz-verdict-ok { color: #2ecc71; font-weight: 700; }
+.quiz-item .quiz-miss { border-color: #e74c3c; }
+.quiz-true-btn, .quiz-false-btn {
+  padding: 4px 12px;
+  border: 1px solid var(--border, #ccc);
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+.quiz-true-btn.selected { background: #2ecc71; color: #fff; border-color: #2ecc71; }
+.quiz-false-btn.selected { background: #e74c3c; color: #fff; border-color: #e74c3c; }
+
+/* ============================================================
+   CATEGORÍAS (Listening, Speaking, Grammar, Writing)
+   ============================================================ */
+.cat-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.cat-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 16px;
+  border: 1px solid var(--border, #ddd);
+  border-radius: 12px;
+  background: var(--bg-card, #fff);
+  cursor: pointer;
+  text-align: left;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.cat-card:hover {
+  border-color: var(--primary, #4a90d9);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.cat-card.active {
+  border-color: var(--accent, #7c5cff);
+  background: rgba(124, 92, 255, 0.06);
+}
+
+.cat-emoji {
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+.cat-card b {
+  font-size: 1rem;
+}
+
+.cat-desc {
+  font-size: 0.85rem;
+  color: var(--text-muted, #666);
+}
+
+.cat-back-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.cat-back-btn {
+  background: none;
+  border: 1px solid var(--border, #ccc);
+  border-radius: 8px;
+  padding: 6px 14px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: var(--text, #e8eaf6);
+}
+
+.cat-back-btn:hover {
+  background: var(--surface-2, #232946);
+  color: var(--text, #e8eaf6);
+}
+
+/* Etiqueta del juego/actividad seleccionada junto al botón "← Cambiar" */
+.cat-selected-label {
+  color: var(--text, #e8eaf6);
+  font-size: 1.05rem;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ============================================================
+   CONFIGURACIÓN — acordeón de secciones (solo una expandida)
+   ============================================================ */
+.settings-section {
+  border: 1px solid var(--card-border, #2a3050);
+  border-radius: 10px;
+  margin-bottom: 0.5rem;
+  background: rgba(255, 255, 255, 0.02);
+  overflow: hidden;
+}
+
+.settings-section > summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  cursor: pointer;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text, #e8eaf6);
+  list-style: none;
+  user-select: none;
+}
+
+.settings-section > summary::-webkit-details-marker { display: none; }
+
+.settings-section > summary::before {
+  content: '▸';
+  display: inline-block;
+  width: 1em;
+  color: var(--primary, #6c8cff);
+  transition: transform 0.15s ease;
+}
+
+.settings-section[open] > summary::before {
+  content: '▾';
+}
+
+.settings-section > summary:hover {
+  background: var(--surface-2, #232946);
+}
+
+.settings-section-body {
+  padding: 4px 14px 10px;
+  border-top: 1px solid var(--card-border, #2a3050);
+}
+
+/* Subsecciones anidadas (p. ej. dentro de Preferencias) */
+.settings-subsection {
+  border: 1px solid var(--card-border, #2a3050);
+  border-radius: 8px;
+  margin: 0.5rem 0;
+  background: rgba(255, 255, 255, 0.015);
+  overflow: hidden;
+}
+
+.settings-subsection > summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--muted, #9aa3c0);
+  list-style: none;
+  user-select: none;
+}
+
+.settings-subsection > summary::-webkit-details-marker { display: none; }
+
+.settings-subsection > summary::before {
+  content: '▸';
+  display: inline-block;
+  width: 1em;
+  color: var(--primary, #6c8cff);
+  transition: transform 0.15s ease;
+}
+
+.settings-subsection[open] > summary::before {
+  content: '▾';
+}
+
+.settings-subsection[open] > summary {
+  color: var(--text, #e8eaf6);
+}
+
+.settings-subsection > summary:hover {
+  background: var(--surface-2, #232946);
+}
+
+.settings-subsection > .settings-section-body {
+  padding: 4px 12px 10px;
+  border-top: 1px solid var(--card-border, #2a3050);
+}
+
+@media (max-width: 600px) {
+  .cat-picker-grid {
+    grid-template-columns: 1fr 1fr;
+  }
 }

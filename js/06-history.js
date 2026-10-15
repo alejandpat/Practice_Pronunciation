@@ -131,5 +131,6 @@ historyClearBtn.addEventListener('click', () => {
 });
 
 // Redibujar el progreso al cambiar el filtro de nivel
-progressLevelFilter.addEventListener('change', renderProgress);
+// (referencia diferida: renderProgress se define en 07-progress.js, que carga después)
+progressLevelFilter.addEventListener('change', () => renderProgress());
 
